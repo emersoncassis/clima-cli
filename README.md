@@ -112,6 +112,24 @@ pip install -r requirements.txt
 python main.py Goiania
 ```
 
+### Exemplo de saída
+
+```
+Clima em Goiania:
+  Temperatura : 28°C
+  Umidade     : 65%
+  Vento       : 15 km/h
+  Condição    : Parcialmente nublado
+```
+
+## ⚙️ Funcionalidades
+
+- **Consulta em tempo real**: usa a API wttr.in para dados atualizados
+- **Informações completas**: temperatura, umidade, velocidade do vento e condição climática
+- **Tradução de condições**: 40+ códigos climáticos traduzidos para português
+- **Tratamento de erros**: timeout de 10s e validação de resposta HTTP
+- **Interface simples**: argumento de linha de comando direto
+
 ## 📖 Histórico de commits
 
 ```
