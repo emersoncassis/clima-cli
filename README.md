@@ -77,6 +77,10 @@ python main.py "Nome da Cidade"
 python main.py "Rio de Janeiro"
 ```
 
+<div align="center">
+  <img src="./pint-clima-cli.jpg" alt="Exemplo Visual do Dashboard CLI" width="600"/>
+</div>
+
 O dashboard continuará aberto no seu terminal, exibindo um relógio digital animado e os dados meteorológicos atualizados.
 
 Para encerrar a aplicação, pressione `CTRL+C`.
