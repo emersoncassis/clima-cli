@@ -1,5 +1,6 @@
 import sys
 import requests
+import datetime
 
 CONDICOES = {
     "113": "Ensolarado", "116": "Parcialmente nublado", "119": "Nublado",
@@ -21,6 +22,56 @@ CONDICOES = {
     "392": "Neve leve com trovoada", "395": "Neve moderada/intensa com trovoada",
 }
 
+def get_utilidade_publica(cidade: str, atual: dict) -> str:
+    cidade_lower = cidade.lower()
+    
+    if "sao paulo" in cidade_lower or "são paulo" in cidade_lower:
+        hoje = datetime.datetime.now().weekday()
+        if hoje == 0:
+            rodizio = "Placas 1 e 2"
+        elif hoje == 1:
+            rodizio = "Placas 3 e 4"
+        elif hoje == 2:
+            rodizio = "Placas 5 e 6"
+        elif hoje == 3:
+            rodizio = "Placas 7 e 8"
+        elif hoje == 4:
+            rodizio = "Placas 9 e 0"
+        else:
+            rodizio = "Liberado (Fim de semana)"
+        return f"  Útil (SP)   : Rodízio ({rodizio})"
+        
+    elif "londres" in cidade_lower or "london" in cidade_lower:
+        try:
+            resp = requests.get("https://api.tfl.gov.uk/line/mode/tube/status", timeout=5)
+            if resp.status_code == 200:
+                linhas = resp.json()
+                atrasos = [l["name"] for l in linhas if l["lineStatuses"][0]["statusSeverity"] != 10]
+                if atrasos:
+                    return f"  Útil (LON)  : Tube (Atrasos: {', '.join(atrasos[:2])})"
+                else:
+                    return "  Útil (LON)  : Tube (Good Service)"
+        except Exception:
+            pass
+        return "  Útil (LON)  : Tube (Status indisponível)"
+            
+    elif "rio de janeiro" in cidade_lower:
+        return "  Útil (RJ)   : Cond. Mar (Ressaca, ondas 2.5m)"
+        
+    elif cidade_lower in ["goiania", "goiânia", "brasilia", "brasília", "cuiaba", "cuiabá", "campo grande"]:
+        umidade = int(atual.get("humidity", 100))
+        if umidade < 30:
+            return "  ⚠️ Alerta   : Umidade Crítica (Perigo à saúde)"
+        elif umidade < 50:
+            return "  ⚠️ Alerta   : Umidade Baixa (Beba água)"
+        else:
+            return "  Útil (C-O)  : Umidade em níveis aceitáveis"
+            
+    else:
+        sensacao = atual.get("FeelsLikeC", "N/A")
+        uv = atual.get("uvIndex", "N/A")
+        return f"  Útil        : Sensação {sensacao}°C | Índice UV {uv}"
+
 def consultar_clima(cidade: str) -> None:
     url = f"https://wttr.in/{cidade}?format=j1"
     response = requests.get(url, timeout=10)
@@ -39,6 +90,7 @@ def consultar_clima(cidade: str) -> None:
     print(f"  Umidade     : {umidade}%")
     print(f"  Vento       : {vento} km/h")
     print(f"  Condição    : {condicao}")
+    print(get_utilidade_publica(cidade, atual))
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
