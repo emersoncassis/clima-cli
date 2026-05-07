@@ -1,152 +1,89 @@
-# Clima CLI – Projeto prático do Capítulo 3: Git e GitHub
+---
+type: Note
+_organized: true
+---
+# 🌤️ Clima CLI
 
-Este projeto foi desenvolvido durante a aula do **Capítulo 3: Git – O CTRL+Z que a IA não te dá** do livro *Engenharia de Software com Agentes Inteligentes*.
+![Python](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python&logoColor=white)
+![Git](https://img.shields.io/badge/Git-Enabled-F05032?style=for-the-badge&logo=git&logoColor=white)
+![Rich](https://img.shields.io/badge/CLI-Rich-green?style=for-the-badge)
 
-## 📚 Objetivo do capítulo
+Uma aplicação de linha de comando (CLI) desenvolvida em Python para exibição de dados meteorológicos e informações de utilidade pública em tempo real, utilizando uma interface visual rica e interativa no terminal.
 
-Demonstrar como usar **Git e GitHub** de forma segura e eficiente quando se trabalha com **agentes inteligentes**, transformando experimentos em **risco controlado** através de branches e commits descritivos.
-
-## 🚀 Fluxo de desenvolvimento com agente
-
-### 1. Inicialização do projeto
-```bash
-git init
-git config --global init.defaultBranch main
-git branch -m master main
-```
-
-### 2. Primeiro commit (estrutura básica)
-```bash
-git add .gitignore
-git commit -m "chore: inicializa projeto com .gitignore"
-```
-
-### 3. Criação do repositório remoto
-```bash
-gh repo create clima-cli --public --source=. --remote=origin --push
-```
-
-### 4. Branch de desenvolvimento
-```bash
-git checkout -b feat/estrutura-inicial
-```
-
-### 5. Instrução ao agente
-> *"Crie um script Python chamado `main.py` que aceite o nome de uma cidade como argumento de linha de comando e exiba a temperatura atual usando a API pública wttr.in. Use o módulo `requests`. Crie também um `requirements.txt` com as dependências."*
-
-### 6. Teste e commit
-```bash
-git add main.py requirements.txt
-git commit -m "feat: implementa consulta de clima via wttr.in"
-```
-
-### 7. Branch para experimentação
-```bash
-git checkout -b feat/clima-detalhado
-```
-
-### 8. Nova instrução ao agente
-> *"Modifique o `main.py` para exibir também umidade, velocidade do vento e condição climática (ensolarado, nublado, etc.), ainda usando a API wttr.in. Mantenha o argumento de linha de comando."*
-
-### 9. Merge seguro
-```bash
-git checkout feat/estrutura-inicial
-git merge feat/clima-detalhado
-git branch -d feat/clima-detalhado
-```
-
-### 10. Integração final
-```bash
-git checkout main
-git merge feat/estrutura-inicial
-git push
-```
-
-## 🛠️ Comandos Git essenciais
-
-| Comando | Descrição |
-|---------|-----------|
-| `git status` | Estado atual do repositório |
-| `git add .` | Prepara todos os arquivos |
-| `git commit -m "mensagem"` | Registra snapshot com mensagem descritiva |
-| `git checkout -b nome-branch` | Cria e entra em nova branch |
-| `git merge branch` | Integra branch ao código atual |
-| `git branch -d branch` | Deleta branch após merge |
-| `git push` / `git pull` | Sincroniza com GitHub |
-| `git log --oneline` | Histórico compacto |
-| `git restore arquivo.py` | Descarta mudanças não commitadas |
-| `git revert <hash>` | Desfaz commit já publicado |
-
-## 🧠 Por que Git é obrigatório com IA
-
-- **Agentes não têm memória**: operam sempre sobre o estado atual do código
-- **Branches = experimentos seguros**: cada experimento fica isolado até aprovação
-- **Histórico = pontos de restauração**: cada commit é um CTRL+Z recuperável
-- **Mensagens descritivas**: explicam ao agente, a você e à equipe o que mudou
-
-## 📁 Estrutura do projeto
-
-```
-clima-cli/
-├── .gitignore          # Arquivos ignorados pelo Git
-├── requirements.txt    # Dependências (requests)
-├── main.py            # Script principal
-└── .venv/             # Ambiente virtual (ignorado)
-```
-
-## 🧪 Como usar
-
-```bash
-# Clone o repositório
-git clone https://github.com/ecodelearn/clima-cli.git
-cd clima-cli
-
-# Crie ambiente virtual
-python3 -m venv .venv
-source .venv/bin/activate  # ou .venv\Scripts\activate no Windows
-
-# Instale dependências
-pip install -r requirements.txt
-
-# Execute
-python main.py Goiania
-```
-
-### Exemplo de saída
-
-```
-Clima em Goiania:
-  Temperatura : 28°C
-  Umidade     : 65%
-  Vento       : 15 km/h
-  Condição    : Parcialmente nublado
-```
-
-## ⚙️ Funcionalidades
-
-- **Consulta em tempo real**: usa a API wttr.in para dados atualizados
-- **Informações completas**: temperatura, umidade, velocidade do vento e condição climática
-- **Tradução de condições**: 40+ códigos climáticos traduzidos para português
-- **Tratamento de erros**: timeout de 10s e validação de resposta HTTP
-- **Interface simples**: argumento de linha de comando direto
-
-## 📖 Histórico de commits
-
-```
-1bc91fe feat: adiciona umidade, vento e condição climática
-799de33 feat: implementa consulta de clima via wttr.in
-f890fa6 chore: inicializa projeto com .gitignore
-```
-
-## 🔗 Links
-
-- [Livro: Engenharia de Software com Agentes Inteligentes](https://physia.com.br/aieng)
-- [API wttr.in](https://wttr.in)
-- [Git Documentation](https://git-scm.com/doc)
-- [GitHub CLI](https://cli.github.com)
+Este projeto foi originalmente concebido como projeto prático durante a aula do **Capítulo 3: Git – O CTRL+Z que a IA não te dá** do livro *Engenharia de Software com Agentes Inteligentes*.
 
 ---
 
-**Aula ministrada por:** Sandeco  
-**Repositório:** https://github.com/ecodelearn/clima-cli  
-**Data:** 06/05/2026
+## 🚀 Funcionalidades
+
+- **Consulta em Tempo Real:** Obtém dados meteorológicos ao vivo consumindo a API [wttr.in](https://wttr.in).
+- **Interface Rica e Dinâmica:** Dashboard elegante no terminal com relógio atualizado em tempo real, desenvolvido usando a biblioteca `rich`.
+- **Tradução Automática:** Mais de 40 códigos climáticos traduzidos nativamente para o português.
+- **Utilidade Pública Contextual:** Mostra alertas personalizados baseados na cidade escolhida (ex: Rodízio em São Paulo, Status do *Tube* em Londres, Alertas de umidade no Centro-Oeste).
+- **Resiliência e Tratamento de Erros:** Atualizações em segundo plano com suporte contínuo a falhas momentâneas de conexão (cache).
+
+## 📋 Pré-requisitos
+
+Certifique-se de ter instalado em sua máquina:
+- [Python 3.8+](https://www.python.org/downloads/)
+- [Git](https://git-scm.com/)
+
+## 🛠️ Instalação e Configuração
+
+Siga os passos abaixo para preparar o ambiente local e rodar a aplicação:
+
+1. **Clone o repositório:**
+   ```bash
+   git clone https://github.com/ecodelearn/clima-cli.git
+   cd clima-cli
+   ```
+
+2. **Crie o ambiente virtual:**
+   ```bash
+   python -m venv .venv
+   ```
+
+3. **Ative o ambiente virtual:**
+   - **Windows:**
+     ```powershell
+     .\.venv\Scripts\activate
+     ```
+   - **Linux / macOS:**
+     ```bash
+     source .venv/bin/activate
+     ```
+
+4. **Instale as dependências:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## 💻 Como usar
+
+Após a instalação das bibliotecas e ativação do ambiente, execute a aplicação passando o nome da cidade desejada como argumento:
+
+```bash
+python main.py "Nome da Cidade"
+```
+
+**Exemplo:**
+```bash
+python main.py "Rio de Janeiro"
+```
+
+O dashboard continuará aberto no seu terminal, exibindo um relógio digital animado e os dados meteorológicos atualizados. 
+
+Para encerrar a aplicação, pressione `CTRL+C`.
+
+---
+
+## 🤝 Créditos e Agradecimentos
+
+Este projeto não seria possível sem a colaboração e os ensinamentos essenciais:
+
+- **Desenvolvedor / Criador Principal:** Emerson Cassis *(Implementação, refatoração estrutural da aplicação e design da interface CLI).*
+- **Professor e Idealizador:** [Prof. Sandeco](https://github.com/sandeco) *(Idealizador original do projeto na aula "Git – O CTRL+Z que a IA não te dá" e autor do livro [Engenharia de Software com Agentes Inteligentes](https://physia.com.br/aieng)).*
+
+---
+
+> *Desenvolvido com dedicação para a comunidade! Se gostou, considere deixar uma ⭐ no repositório original.*

@@ -1,6 +1,12 @@
 import sys
+import time
 import requests
 import datetime
+from rich.live import Live
+from rich.table import Table
+from rich.console import Console
+
+console = Console()
 
 CONDICOES = {
     "113": "Ensolarado", "116": "Parcialmente nublado", "119": "Nublado",
@@ -72,7 +78,7 @@ def get_utilidade_publica(cidade: str, atual: dict) -> str:
         uv = atual.get("uvIndex", "N/A")
         return f"  Útil        : Sensação {sensacao}°C | Índice UV {uv}"
 
-def consultar_clima(cidade: str) -> None:
+def obter_dados_clima(cidade: str) -> dict:
     url = f"https://wttr.in/{cidade}?format=j1"
     response = requests.get(url, timeout=10)
     response.raise_for_status()
@@ -84,16 +90,76 @@ def consultar_clima(cidade: str) -> None:
     vento = atual["windspeedKmph"]
     codigo = atual["weatherCode"]
     condicao = CONDICOES.get(codigo, f"Código {codigo}")
+    
+    # Reaproveitando a função existente, mas removendo os espaços extras
+    utilidade = get_utilidade_publica(cidade, atual).strip()
 
-    print(f"Clima em {cidade}:")
-    print(f"  Temperatura : {temp}°C")
-    print(f"  Umidade     : {umidade}%")
-    print(f"  Vento       : {vento} km/h")
-    print(f"  Condição    : {condicao}")
-    print(get_utilidade_publica(cidade, atual))
+    return {
+        "temp": temp,
+        "umidade": umidade,
+        "vento": vento,
+        "condicao": condicao,
+        "utilidade": utilidade
+    }
+
+def obter_animacao_clima(segundos_atuais: int) -> str:
+    frames = ["☀️  ", "🌞 ", "☀️  ", "🌤️  "]
+    return frames[segundos_atuais % len(frames)]
+
+def gerar_painel(cidade: str, clima_data: dict) -> Table:
+    agora = datetime.datetime.now()
+    hora_formatada = agora.strftime("%H:%M:%S")
+    
+    tabela = Table(title=f"Dashboard: {cidade.upper()}", title_style="bold cyan")
+    tabela.add_column("Relógio", justify="center", style="cyan", vertical="middle")
+    tabela.add_column("Status em Tempo Real", justify="left")
+
+    animacao = obter_animacao_clima(agora.second)
+    
+    status = (
+        f"{animacao} [bold yellow]{clima_data['condicao']}[/bold yellow] | [bold]{clima_data['temp']}°C[/bold]\n"
+        f"💧 Umidade: {clima_data['umidade']}%\n"
+        f"💨 Vento: {clima_data['vento']} km/h\n"
+        f"📍 [bold green]{clima_data['utilidade']}[/bold green]"
+    )
+    
+    relogio_gigante = f"[b]{hora_formatada}[/b]" 
+
+    tabela.add_row(relogio_gigante, status)
+    return tabela
+
+def main():
+    if len(sys.argv) < 2:
+        console.print("[bold red]Uso: python main.py <cidade>[/bold red]")
+        sys.exit(1)
+        
+    cidade = sys.argv[1]
+    
+    with console.status(f"[bold green]Buscando dados meteorológicos iniciais para {cidade}...", spinner="dots"):
+        try:
+            clima_data = obter_dados_clima(cidade)
+        except Exception as e:
+            console.print(f"[bold red]Erro ao buscar dados: {e}[/bold red]")
+            sys.exit(1)
+            
+    ultima_atualizacao = time.time()
+    
+    with Live(gerar_painel(cidade, clima_data), refresh_per_second=2, console=console) as live:
+        while True:
+            try:
+                agora = time.time()
+                # Atualiza os dados meteorológicos a cada 5 minutos para evitar bloqueio da API
+                if agora - ultima_atualizacao > 300:
+                    try:
+                        clima_data = obter_dados_clima(cidade)
+                        ultima_atualizacao = agora
+                    except:
+                        pass # ignora erro temporário e continua mostrando cache
+                        
+                live.update(gerar_painel(cidade, clima_data))
+                time.sleep(0.5)
+            except KeyboardInterrupt:
+                break
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Uso: python main.py <cidade>")
-        sys.exit(1)
-    consultar_clima(sys.argv[1])
+    main()
