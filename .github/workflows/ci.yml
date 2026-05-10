@@ -1,0 +1,78 @@
+name: Clima CLI CI
+
+# Controla quando o workflow será executado
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+# Evita execuções redundantes para commits consecutivos na mesma branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Job de Validação Estática (Linting, Formatação e Segurança)
+  lint-and-security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar Código do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar Dependências de Lint e Segurança
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff bandit
+
+      - name: Executar Ruff (Linter & Import Sorter)
+        run: |
+          # Verifica problemas de linting e regras de estilo comuns
+          ruff check .
+
+      - name: Executar Ruff Format (Verificação de Formatação)
+        run: |
+          # Verifica se o código está formatado corretamente de acordo com o padrão PEP 8
+          ruff format --check .
+
+      - name: Análise de Segurança Estática (Bandit)
+        run: |
+          # Analisa o código Python em busca de falhas e vulnerabilidades comuns de segurança
+          # -r varre recursivamente, -ll foca em níveis médio/alto, -ii foca em alta confiança
+          bandit -r . -ll -ii
+
+  # Job de Testes de Unidade contra múltiplas versões do Python (Matrix Testing)
+  unit-tests:
+    needs: lint-and-security
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Não cancela os outros testes se um falhar, para sabermos onde quebrou
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    name: Tests (Python ${{ matrix.python-version }})
+    steps:
+      - name: Baixar Código do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Instalar Dependências do Projeto
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Executar Testes Unitários
+        run: |
+          # Executa todos os testes localizados na pasta tests usando o unittest nativo do Python
+          python -m unittest discover -s tests

@@ -1,0 +1,21 @@
+[tool.ruff]
+# Comprimento máximo de linha compatível com o padrão PEP 8 / Black
+line-length = 88
+
+# Alvo mínimo suportado de versão do Python
+target-version = "py38"
+
+[tool.ruff.lint]
+# Regras ativas:
+# E/W: Erros e avisos padrão de codificação (PEP8)
+# F: Verificações do Pyflakes (importações não utilizadas, variáveis indefinidas, etc.)
+# I: Classificação e ordenação de imports (isort)
+# B: Prevenção de bugs e antipadrões (flake8-bugbear)
+select = ["E", "F", "I", "W", "B"]
+ignore = []
+
+[tool.ruff.format]
+# Define o uso de aspas duplas, consistente com o padrão Black
+quote-style = "double"
+# Recuo por espaços em vez de tabulação
+indent-style = "space"
