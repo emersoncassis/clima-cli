@@ -1,12 +1,15 @@
-import unittest
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock, patch
 
 # Adiciona o diretório pai ao sys.path para que possamos importar main.py
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 
 import main
+
 
 class TestClimaCLI(unittest.TestCase):
 
@@ -16,13 +19,15 @@ class TestClimaCLI(unittest.TestCase):
         for seg in range(10):
             frame = main.obter_animacao_clima(seg)
             self.assertIn(frame, frames_esperados)
-            self.assertEqual(frame, frames_esperados[seg % len(frames_esperados)])
+            self.assertEqual(
+                frame, frames_esperados[seg % len(frames_esperados)]
+            )
 
     def test_get_utilidade_publica_sao_paulo(self):
         # Testar para São Paulo (independentemente de maiúsculas/minúsculas e acentos)
         result = main.get_utilidade_publica("São Paulo", {})
         self.assertIn("Rodízio", result)
-        
+
         result_caps = main.get_utilidade_publica("SAO PAULO", {})
         self.assertIn("Rodízio", result_caps)
 
@@ -35,11 +40,11 @@ class TestClimaCLI(unittest.TestCase):
         # Testar para Goiânia com umidade baixa
         result_seca = main.get_utilidade_publica("Goiânia", {"humidity": "25"})
         self.assertIn("Umidade Crítica", result_seca)
-        
+
         # Testar para Goiânia com umidade média
         result_media = main.get_utilidade_publica("Goiania", {"humidity": "40"})
         self.assertIn("Umidade Baixa", result_media)
-        
+
         # Testar para Goiânia com umidade alta
         result_alta = main.get_utilidade_publica("Brasília", {"humidity": "60"})
         self.assertIn("Umidade em níveis aceitáveis", result_alta)
@@ -51,14 +56,17 @@ class TestClimaCLI(unittest.TestCase):
         self.assertIn("Sensação 22°C", result)
         self.assertIn("Índice UV 5", result)
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_get_utilidade_publica_londres_sucesso(self, mock_get):
         # Configurar mock para retornar status de sucesso da API de Londres (TfL)
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = [
             {"name": "Central", "lineStatuses": [{"statusSeverity": 10}]},
-            {"name": "Piccadilly", "lineStatuses": [{"statusSeverity": 9}]}  # Atraso
+            {
+                "name": "Piccadilly",
+                "lineStatuses": [{"statusSeverity": 9}],
+            },  # Atraso
         ]
         mock_get.return_value = mock_response
 
@@ -66,7 +74,7 @@ class TestClimaCLI(unittest.TestCase):
         self.assertIn("Piccadilly", result)
         self.assertIn("Tube", result)
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_get_utilidade_publica_londres_falha(self, mock_get):
         # Configurar mock para lançar uma exceção de conexão
         mock_get.side_effect = Exception("Falha de rede")
@@ -74,7 +82,7 @@ class TestClimaCLI(unittest.TestCase):
         result = main.get_utilidade_publica("London", {})
         self.assertIn("Tube (Status indisponível)", result)
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_obter_dados_clima(self, mock_get):
         # Configurar mock de resposta para wttr.in
         mock_response = MagicMock()
@@ -87,14 +95,14 @@ class TestClimaCLI(unittest.TestCase):
                     "windspeedKmph": "12",
                     "weatherCode": "113",
                     "FeelsLikeC": "26",
-                    "uvIndex": "6"
+                    "uvIndex": "6",
                 }
             ]
         }
         mock_get.return_value = mock_response
 
         clima_info = main.obter_dados_clima("Campinas")
-        
+
         self.assertEqual(clima_info["temp"], "25")
         self.assertEqual(clima_info["umidade"], "65")
         self.assertEqual(clima_info["vento"], "12")
@@ -102,16 +110,16 @@ class TestClimaCLI(unittest.TestCase):
         self.assertIn("Sensação 26°C", clima_info["utilidade"])
 
     def test_get_utilidade_publica_cpbr18(self):
-        # Verifica se o retorno de utilidade publica para CPBR18 é personalizado e inclui o nome do evento
+        # Verifica se o retorno de utilidade publica para CPBR18 é personalizado
         result = main.get_utilidade_publica("cpbr18", {})
         self.assertIn("CPBR18", result)
-        
+
         result_caps = main.get_utilidade_publica("CPBR18", {})
         self.assertIn("CPBR18", result_caps)
-        
+
         result_campus = main.get_utilidade_publica("Campus Party", {})
         self.assertIn("CPBR18", result_campus)
 
+
 if __name__ == "__main__":
     unittest.main()
-

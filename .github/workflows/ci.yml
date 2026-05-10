@@ -80,6 +80,7 @@ jobs:
           echo "Testando resposta da CLI sem argumentos (espera-se código de saída 1):"
           docker run --rm clima-cli:latest || [ $? -eq 1 ]
 
-          # Faz uma chamada direta rápida em modo não-interativo que exibe o painel de clima e encerra imediatamente
-          echo "Testando uma busca meteorológica real para 'Brasilia' (modo estático sem TTY):"
-          docker run --rm clima-cli:latest "Brasilia"
+      - name: Validar Execução Nativa da GitHub Action (Container Action Run)
+        uses: ./
+        with:
+          city: "Brasilia"
