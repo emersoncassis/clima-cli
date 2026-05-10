@@ -12,7 +12,6 @@ import main
 
 
 class TestClimaCLI(unittest.TestCase):
-
     def test_obter_animacao_clima(self):
         # Verifica se o retorno de obter_animacao_clima está entre os frames esperados
         frames_esperados = ["☀️  ", "🌞 ", "☀️  ", "🌤️  "]
@@ -63,10 +62,7 @@ class TestClimaCLI(unittest.TestCase):
         mock_response.status_code = 200
         mock_response.json.return_value = [
             {"name": "Central", "lineStatuses": [{"statusSeverity": 10}]},
-            {
-                "name": "Piccadilly",
-                "lineStatuses": [{"statusSeverity": 9}],
-            },  # Atraso
+            {"name": "Piccadilly", "lineStatuses": [{"statusSeverity": 9}]},
         ]
         mock_get.return_value = mock_response
 
