@@ -80,10 +80,6 @@ jobs:
           echo "Testando resposta da CLI sem argumentos (espera-se código de saída 1):"
           docker run --rm clima-cli:latest || [ $? -eq 1 ]
 
-          # Faz uma chamada rápida para demonstrar funcionamento de busca (dry-run com local válido no mock)
-          # NOTA: O container no CI tem acesso à internet, então podemos testar uma busca real leve rápida.
-          echo "Testando uma busca meteorológica real leve de fumaça:"
-          docker run --rm clima-cli:latest "Brasilia" &
-          PID=$!
-          sleep 5
-          kill $PID || true
+          # Faz uma chamada direta rápida em modo não-interativo que exibe o painel de clima e encerra imediatamente
+          echo "Testando uma busca meteorológica real para 'Brasilia' (modo estático sem TTY):"
+          docker run --rm clima-cli:latest "Brasilia"

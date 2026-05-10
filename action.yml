@@ -1,0 +1,13 @@
+name: 'Clima CLI'
+description: 'Busca e exibe o clima de qualquer cidade com uma interface retrô TUI e utilidade pública'
+author: 'emersoncassis'
+inputs:
+  city:
+    description: 'Nome da cidade, localidade ou evento para buscar o clima'
+    required: false
+    default: 'Brasilia'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.city }}

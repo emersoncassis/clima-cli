@@ -22,4 +22,4 @@ COPY . .
 
 # Define o Entrypoint para que o container se comporte diretamente como a CLI do clima
 # Permitindo rodar: docker run <imagem> "São Paulo"
-ENTRYPOINT ["python", "main.py"]
+ENTRYPOINT ["python", "/app/main.py"]
