@@ -308,9 +308,7 @@ def city_clean_accent(text: str) -> str:
     import unicodedata
 
     return "".join(
-        c
-        for c in unicodedata.normalize("NFD", text)
-        if unicodedata.category(c) != "Mn"
+        c for c in unicodedata.normalize("NFD", text) if unicodedata.category(c) != "Mn"
     )
 
 
@@ -328,11 +326,7 @@ def obter_dados_clima(cidade: str) -> dict:
     data = response.json()
     atual = data["current_condition"][0]
 
-    temp = (
-        atual["temp_C"]
-        if isinstance(atual.get("temp_C"), (str, int))
-        else "N/A"
-    )
+    temp = atual["temp_C"] if isinstance(atual.get("temp_C"), (str, int)) else "N/A"
     if temp == "N/A" and "FeelsLikeC" in atual:
         temp = atual["FeelsLikeC"]
 
@@ -407,8 +401,7 @@ def gerar_painel(cidade: str, clima_data: dict) -> Panel:
     is_cp = city_is_cp(cidade)
     if is_cp:
         title_text = (
-            "[bold blink magenta] #CPBR18 (Campus Party 2026) "
-            "[/bold blink magenta]"
+            "[bold blink magenta] #CPBR18 (Campus Party 2026) [/bold blink magenta]"
         )
     else:
         title_text = f"[bold cyan] DASHBOARD: {cidade.upper()} [/bold cyan]"
@@ -473,8 +466,7 @@ def gerar_layout_menu(opcao_selecionada: int) -> Panel:
                 )
             else:
                 tabela.add_row(
-                    f"[bold yellow]{cursor} {nome}[/bold yellow] "
-                    f"[dim]({desc})[/dim]"
+                    f"[bold yellow]{cursor} {nome}[/bold yellow] [dim]({desc})[/dim]"
                 )
         else:
             if i == opcao_selecionada:
@@ -483,9 +475,7 @@ def gerar_layout_menu(opcao_selecionada: int) -> Panel:
                     "[bold green](Selecionado)[/bold green]"
                 )
             else:
-                tabela.add_row(
-                    f"[white]{cursor} {nome}[/white] [dim]({desc})[/dim]"
-                )
+                tabela.add_row(f"[white]{cursor} {nome}[/white] [dim]({desc})[/dim]")
 
     menu_content = Group(
         "[bold white]Selecione uma opcao utilizando as setas "
@@ -500,8 +490,7 @@ def gerar_layout_menu(opcao_selecionada: int) -> Panel:
     return Panel(
         menu_content,
         title="[bold yellow] CLIMA CLI - MENU SELETIVO [/bold yellow]",
-        subtitle="[bold green] Campus Party Brasil (#CPBR18) em Destaque "
-        "[/bold green]",
+        subtitle="[bold green] Campus Party Brasil (#CPBR18) em Destaque [/bold green]",
         border_style="bold magenta",
         box=box.DOUBLE,
         width=65,
@@ -518,8 +507,7 @@ def exibir_clima_cidade(fd, cidade: str, old_settings, td: TerminalDashboard):
             clima_data = obter_dados_clima(cidade)
         except Exception as e:
             console.print(
-                f"[bold red]Erro ao buscar dados para '{cidade}': {e}"
-                "[/bold red]"
+                f"[bold red]Erro ao buscar dados para '{cidade}': {e}[/bold red]"
             )
             time.sleep(2)
             return
@@ -557,8 +545,7 @@ def exibir_clima_cidade(fd, cidade: str, old_settings, td: TerminalDashboard):
         elif key == "esc":
             if confirmar_saida(fd, old_settings, td):
                 console.print(
-                    "\n[bold yellow]Saindo da aplicacao. Ate logo!"
-                    "[/bold yellow]"
+                    "\n[bold yellow]Saindo da aplicacao. Ate logo![/bold yellow]"
                 )
                 if sys.platform != "win32" and old_settings is not None:
                     termios.tcsetattr(fd, termios.TCSANOW, old_settings)
@@ -617,9 +604,7 @@ def gerar_layout_capitais(opcao_selecionada: int, scroll_index: int) -> Panel:
                 f"[bold green]({estado})[/bold green]"
             )
         else:
-            tabela.add_row(
-                f"[white]{cursor} {nome}[/white] [dim]({estado})[/dim]"
-            )
+            tabela.add_row(f"[white]{cursor} {nome}[/white] [dim]({estado})[/dim]")
 
     conteudo = Group(
         f"[bold white]Selecione uma Capital do Brasil ("
@@ -642,9 +627,7 @@ def gerar_layout_capitais(opcao_selecionada: int, scroll_index: int) -> Panel:
     )
 
 
-def selecionar_capital_brasil(
-    fd, old_settings, td: TerminalDashboard
-) -> str or None:
+def selecionar_capital_brasil(fd, old_settings, td: TerminalDashboard) -> str or None:
     """Apresenta submenu com rolagem contínua para as 27 capitais."""
     opcao_selecionada = 0
     scroll_index = 0
@@ -748,14 +731,10 @@ def main():
 
                 tecla_pressionada = False
                 if key == "up":
-                    opcao_selecionada = (opcao_selecionada - 1) % len(
-                        OPCOES_MENU
-                    )
+                    opcao_selecionada = (opcao_selecionada - 1) % len(OPCOES_MENU)
                     tecla_pressionada = True
                 elif key == "down":
-                    opcao_selecionada = (opcao_selecionada + 1) % len(
-                        OPCOES_MENU
-                    )
+                    opcao_selecionada = (opcao_selecionada + 1) % len(OPCOES_MENU)
                     tecla_pressionada = True
                 elif key in ("1", "2", "3", "4", "5", "6"):
                     opcao_selecionada = int(key) - 1
@@ -764,20 +743,14 @@ def main():
                     time.sleep(0.15)
                     key = "enter"
                 elif key == "s":
-                    capital_escolhida = selecionar_capital_brasil(
-                        fd, old_settings, td
-                    )
+                    capital_escolhida = selecionar_capital_brasil(fd, old_settings, td)
                     if capital_escolhida:
-                        exibir_clima_cidade(
-                            fd, capital_escolhida, old_settings, td
-                        )
+                        exibir_clima_cidade(fd, capital_escolhida, old_settings, td)
                     opcao_anterior = None
 
                 if key == "enter":
                     cidade_escolhida = OPCOES_MENU[opcao_selecionada]
-                    exibir_clima_cidade(
-                        fd, cidade_escolhida, old_settings, td
-                    )
+                    exibir_clima_cidade(fd, cidade_escolhida, old_settings, td)
                     opcao_anterior = None
 
                 elif key == "esc":
@@ -807,6 +780,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        console.print(
-            "\nEncerrando o Clima CLI de forma rapida. Ate mais!"
-        )
+        console.print("\nEncerrando o Clima CLI de forma rapida. Ate mais!")

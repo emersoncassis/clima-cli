@@ -4,9 +4,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Adiciona o diretório pai ao sys.path para que possamos importar main.py
-sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import main
 
@@ -18,9 +16,7 @@ class TestClimaCLI(unittest.TestCase):
         for seg in range(10):
             frame = main.obter_animacao_clima(seg)
             self.assertIn(frame, frames_esperados)
-            self.assertEqual(
-                frame, frames_esperados[seg % len(frames_esperados)]
-            )
+            self.assertEqual(frame, frames_esperados[seg % len(frames_esperados)])
 
     def test_get_utilidade_publica_sao_paulo(self):
         # Testar para São Paulo (independentemente de maiúsculas/minúsculas e acentos)
