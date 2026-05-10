@@ -101,5 +101,17 @@ class TestClimaCLI(unittest.TestCase):
         self.assertEqual(clima_info["condicao"], "Ensolarado")
         self.assertIn("Sensação 26°C", clima_info["utilidade"])
 
+    def test_get_utilidade_publica_cpbr18(self):
+        # Verifica se o retorno de utilidade publica para CPBR18 é personalizado e inclui o nome do evento
+        result = main.get_utilidade_publica("cpbr18", {})
+        self.assertIn("CPBR18", result)
+        
+        result_caps = main.get_utilidade_publica("CPBR18", {})
+        self.assertIn("CPBR18", result_caps)
+        
+        result_campus = main.get_utilidade_publica("Campus Party", {})
+        self.assertIn("CPBR18", result_campus)
+
 if __name__ == "__main__":
     unittest.main()
+
