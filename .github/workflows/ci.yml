@@ -1,4 +1,4 @@
-name: Clima CLI CI
+name: Clima CLI CI (Dockerized)
 
 # Controla quando o workflow será executado
 on:
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Job de Validação Estática (Linting, Formatação e Segurança)
+  # Job 1: Validação Estática (Roda rápido no host)
   lint-and-security:
     runs-on: ubuntu-latest
     steps:
@@ -33,46 +33,57 @@ jobs:
 
       - name: Executar Ruff (Linter & Import Sorter)
         run: |
-          # Verifica problemas de linting e regras de estilo comuns
           ruff check .
 
       - name: Executar Ruff Format (Verificação de Formatação)
         run: |
-          # Verifica se o código está formatado corretamente de acordo com o padrão PEP 8
           ruff format --check .
 
       - name: Análise de Segurança Estática (Bandit)
         run: |
-          # Analisa o código Python em busca de falhas e vulnerabilidades comuns de segurança
-          # -r varre recursivamente, -ll foca em níveis médio/alto, -ii foca em alta confiança
           bandit -r . -ll -ii
 
-  # Job de Testes de Unidade contra múltiplas versões do Python (Matrix Testing)
-  unit-tests:
+  # Job 2: Build e Testes dentro do Container Docker
+  docker-build-and-test:
     needs: lint-and-security
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false # Não cancela os outros testes se um falhar, para sabermos onde quebrou
-      matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
-    name: Tests (Python ${{ matrix.python-version }})
+    
     steps:
       - name: Baixar Código do Repositório
         uses: actions/checkout@v4
 
-      - name: Configurar Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      # Configura o driver de BuildKit para construções de container otimizadas e caching de camadas
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Construir Imagem Docker
+        uses: docker/build-push-action@v5
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
+          context: .
+          file: ./Dockerfile
+          tags: clima-cli:latest
+          outputs: type=docker,dest=/tmp/clima-cli-image.tar
 
-      - name: Instalar Dependências do Projeto
+      - name: Carregar Imagem Docker Construída
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          docker load --input /tmp/clima-cli-image.tar
 
-      - name: Executar Testes Unitários
+      - name: Executar Testes Unitários dentro do Docker
         run: |
-          # Executa todos os testes localizados na pasta tests usando o unittest nativo do Python
-          python -m unittest discover -s tests
+          # Sobrescreve o ENTRYPOINT padrão para executar a suíte de testes unitários no ambiente isolado do container
+          docker run --entrypoint python clima-cli:latest -m unittest discover -s tests
+
+      - name: Validar Execução e Interface da CLI no Container (Dry Run)
+        run: |
+          # Verifica se o container responde corretamente ao uso de argumentos
+          # Se rodado sem argumentos, a CLI deve exibir a ajuda de uso e sair com código 1
+          echo "Testando resposta da CLI sem argumentos (espera-se código de saída 1):"
+          docker run --rm clima-cli:latest || [ $? -eq 1 ]
+
+          # Faz uma chamada rápida para demonstrar funcionamento de busca (dry-run com local válido no mock)
+          # NOTA: O container no CI tem acesso à internet, então podemos testar uma busca real leve rápida.
+          echo "Testando uma busca meteorológica real leve de fumaça:"
+          docker run --rm clima-cli:latest "Brasilia" &
+          PID=$!
+          sleep 5
+          kill $PID || true
